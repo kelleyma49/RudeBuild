@@ -297,18 +297,57 @@ namespace RudeBuildVSShared
 
 			foreach (EnvDTE.Project project in commandManager.Application.Solution.Projects)
 			{
-				var projectInfo = _solutionInfo.GetProjectInfo(project.Name);
-				if (null != projectInfo)
-				{
-					var projectData = new List<Item>();
-					ProcessProject(solutionService, project, projectInfo, projectData);
-					if (projectData.Count > 0)
-						ProjectNameToCppFileNameMap[project.Name] = projectData;
-				}
+                IList<EnvDTE.Project> list;
+                if (project.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
+                {
+                    list = GetSolutionFolderProjects(project);
+                }
+                else
+                {
+                    list = new List<EnvDTE.Project>();
+                    list.Add(project);
+                }
+
+                foreach (var p in list)
+                {
+                    var projectInfo = _solutionInfo.GetProjectInfo(p.Name);
+                    if (null != projectInfo)
+                    {
+                        var projectData = new List<Item>();
+                        ProcessProject(solutionService, p, projectInfo, projectData);
+                        if (projectData.Count > 0)
+                            ProjectNameToCppFileNameMap[p.Name] = projectData;
+                    }
+                }
 			}
 		}
 
-		private void ProcessProject(IVsSolution solutionService, EnvDTE.Project project, ProjectInfo projectInfo, List<Item> projectData)
+        // borrowed from http://www.wwwlicious.com/2011/03/29/envdte-getting-all-projects-html/
+        private static IList<EnvDTE.Project> GetSolutionFolderProjects(EnvDTE.Project solutionFolder)
+        {
+            var list = new List<EnvDTE.Project>();
+            for (var i = 1; i <= solutionFolder.ProjectItems.Count; i++)
+            {
+                var subProject = solutionFolder.ProjectItems.Item(i).SubProject;
+                if (subProject == null)
+                {
+                    continue;
+                }
+
+                // If this is another solution folder, do a recursive call, otherwise add
+                if (subProject.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
+                {
+                    list.AddRange(GetSolutionFolderProjects(subProject));
+                }
+                else
+                {
+                    list.Add(subProject);
+                }
+            }
+            return list;
+        }
+
+        private void ProcessProject(IVsSolution solutionService, EnvDTE.Project project, ProjectInfo projectInfo, List<Item> projectData)
 		{
 			IVsHierarchy projectHierarchy = null;
 
