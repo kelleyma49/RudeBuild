@@ -396,7 +396,10 @@ namespace RudeBuildVSShared
 									string projectRelativeName = projectInfo.GetProjectRelativePathFromAbsolutePath(name);
 									if (projectInfo.AllCppFileNames.Contains(projectRelativeName))
 										projectData.Add(new Item(projectRelativeName));
-								}
+                                    // cmake uses absolute paths for its file paths, so see if we find the absolute path and add it:
+                                    else if (projectInfo.AllCppFileNames.Contains(name))
+                                        projectData.Add(new Item(name));
+                                }
 							}
 							else
 							{
