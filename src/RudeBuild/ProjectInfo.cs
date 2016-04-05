@@ -62,7 +62,7 @@ namespace RudeBuild
         public ProjectInfo(SolutionInfo solution, string name, string fileName, IList<string> mergableCppFileNames, IList<string> allCppFileNames, IList<string> allIncludeFileNames, string precompiledHeaderName)
         {
             Solution = solution;
-            FileName = fileName;
+            FileName = Path.GetFullPath(fileName);
             MergableCppFileNames = mergableCppFileNames;
             AllCppFileNames = allCppFileNames;
             IncludeFileNames = allIncludeFileNames;

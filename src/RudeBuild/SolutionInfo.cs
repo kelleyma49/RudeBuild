@@ -56,7 +56,7 @@ namespace RudeBuild
             var config = new ProjectConfig
             {
                 ProjectGuid = projectGuid,
-                ProjectFileName = projectFileName,
+                ProjectFileName = Path.GetFullPath(projectFileName),
                 SolutionToProjectConfigMap = new Dictionary<string, string>()
             };
             Projects.Add(config);
@@ -99,7 +99,7 @@ namespace RudeBuild
         public string Contents { get; private set; }
 
         public SolutionConfigManager ConfigManager { get; private set; }
-        public IEnumerable<string> ProjectFileNames { get { return from project in ConfigManager.Projects select project.ProjectFileName; } }
+        public IEnumerable<string> ProjectFileNames { get { return from project in ConfigManager.Projects select Path.GetFullPath(project.ProjectFileName); } }
 
         public IDictionary<string, ProjectInfo> Projects { get; private set; }
         public IEnumerable<string> ProjectNames { get { return from projectName in Projects.Keys select projectName; } }
